@@ -52,7 +52,8 @@ public class SmsRoleBehavior implements RoleBehavior {
      */
     private static final List<String> SYSTEM_SMS_PERMISSIONS = Arrays.asList(
             android.Manifest.permission.PERFORM_IMS_SINGLE_REGISTRATION,
-            android.Manifest.permission.ACCESS_RCS_USER_CAPABILITY_EXCHANGE
+            android.Manifest.permission.ACCESS_RCS_USER_CAPABILITY_EXCHANGE,
+            android.Manifest.permission.READ_PHONE_NUMBERS
     );
 
     @Override
@@ -116,8 +117,9 @@ public class SmsRoleBehavior implements RoleBehavior {
     @Override
     public void grantAsUser(@NonNull Role role, @NonNull String packageName,
             @NonNull UserHandle user, @NonNull Context context) {
-        if (SdkLevel.isAtLeastS() && PackageUtils.isSystemPackageAsUser(packageName, user,
-                context)) {
+        // Grant RCS single registration permissions to any default SMS app, not just system apps.
+        // Needed for user-installed Google Messages to perform RCS provisioning.
+        if (SdkLevel.isAtLeastS()) {
             Permissions.grantAsUser(packageName, SYSTEM_SMS_PERMISSIONS, false, false, true,
                     false, false, user, context);
         }
